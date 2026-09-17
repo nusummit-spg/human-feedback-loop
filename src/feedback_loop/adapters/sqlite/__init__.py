@@ -1,4 +1,4 @@
-"""
+﻿"""
 SQLite adapter package.
 
 Exports the two concrete adapters for wiring start_feedback_loop()

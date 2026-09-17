@@ -30,11 +30,23 @@ from feedback_loop.database import Base
 class RatingType(str, enum.Enum):
     POSITIVE = "positive"
     NEGATIVE = "negative"
+    UNRATED = "unrated"
 
 
 class FeedbackType(str, enum.Enum):
     COMPLAINT = "complaint"
     CORRECTION = "correction"
+
+
+class IngestionStatus(str, enum.Enum):
+    PENDING = "pending"
+    SENT = "sent"
+    FAILED = "failed"
+
+
+class FeedbackSource(str, enum.Enum):
+    ACTIVE = "active"
+    PASSIVE = "passive"
 
 
 class EntryRoute(str, enum.Enum):
@@ -381,6 +393,15 @@ class ResponseFeedback(Base):
         nullable=True,
     )
 
+    # --- NEW: feedback-loop ingestion tracking ---
+    ingestion_status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default=IngestionStatus.PENDING.value, index=True
+    )
+    ingestion_source: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    rating_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    feedback_type: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    corrections: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
     __table_args__ = (
         UniqueConstraint("response_id", "actor_id", name="uq_feedback_response_actor"),
         CheckConstraint(
@@ -410,6 +431,30 @@ class ResponseFeedback(Base):
 # dissatisfaction_evidence_json, unified_record_ref
 # (MISSING_SCHEMA_DEFINITIONS.md, "Enhanced Table 3").
 # ---------------------------------------------------------
+
+class QueryLog(Base):
+    """
+    Query log table — tracks all user queries in a session.
+    Used to detect follow-up queries for dissatisfaction signal detection.
+    """
+    __tablename__ = "query_log"
+
+    query_id: Mapped[str] = mapped_column(
+        String(64), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    session_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    response_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+
+    query_text: Mapped[str] = mapped_column(Text, nullable=False)
+    query_type: Mapped[str | None] = mapped_column(String(60), nullable=True)
+
+    created_at: Mapped[str] = mapped_column(String(40), nullable=False, default=_now_iso, index=True)
+
+    __table_args__ = (
+        Index("idx_query_log_session_time", "session_id", "created_at"),
+        Index("idx_query_log_response_time", "response_id", "created_at"),
+    )
+
 
 class QueryEvidence(Base):
     __tablename__ = "query_evidence"

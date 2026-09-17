@@ -1,4 +1,4 @@
-"""
+﻿"""
 SQLite concrete implementation of AbstractEvidenceAdapter.
 
 Reads from:

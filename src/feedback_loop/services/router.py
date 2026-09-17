@@ -1,4 +1,4 @@
-"""
+﻿"""
 Step 3  AdaptiveRouterService
 
 Deterministic rule check against the evidence snapshot and any structured
