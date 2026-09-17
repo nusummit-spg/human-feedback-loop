@@ -1,4 +1,4 @@
-"""
+﻿"""
 Public API  the only surface the host application imports.
 
     from feedback_loop import start_feedback_loop, FeedbackLoopConfig

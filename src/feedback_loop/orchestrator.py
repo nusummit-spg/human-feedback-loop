@@ -1,4 +1,4 @@
-"""
+﻿"""
 RecordBuilder  orchestrates the 4-step unified record build.
 
 Execution model (per design Section 3):
