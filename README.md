@@ -28,13 +28,14 @@ AMC (host app)
 ### From git (pin to a tag, not a branch)
 
 ```
-git+https://github.com/your-org/human-feedback-loop.git@v0.1.0
+git+https://github.com/nusummit-spg/human-feedback-loop@v0.1.0
 ```
 
 Add to the host `requirements.txt`:
 
 ```
-human-feedback-loop @ git+https://github.com/your-org/human-feedback-loop.git@v0.1.0
+
+human-feedback-loop @ git+https://github.com/nusummit-spg/human-feedback-loop@v0.1.0
 ```
 
 ### From a private PyPI (recommended for production)
