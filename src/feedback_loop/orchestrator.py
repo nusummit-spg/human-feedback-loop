@@ -101,6 +101,7 @@ class RecordBuilder:
 
             try:
                 enrichment = step2_future.result()
+                log.info("step2_enrichment_complete", snapshot=enrichment.evidence_snapshot)
             except Exception as exc:
                 # Step 2 failure is fatal  we cannot build a record without evidence
                 log.error("step2_enrichment_failed", error=str(exc))
