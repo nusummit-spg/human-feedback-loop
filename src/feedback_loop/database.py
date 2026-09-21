@@ -12,6 +12,9 @@ class Base(DeclarativeBase):
     pass
 
 
+# Allow extending existing tables (fixes "already defined" errors on re-import)
+Base.registry.configure(extend_existing=True)
+
 engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False},
