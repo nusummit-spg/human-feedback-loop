@@ -108,13 +108,6 @@ class ClassificationService:
 
     def run(self, row: FeedbackRecord, session_id: str = None, feedback_id: str = None) -> ClassificationResult:
         """
-        # Bind session context to structlog
-        if session_id and feedback_id:
-            log = logger.bind(session_id=session_id, feedback_id=feedback_id)
-        else:
-            log = logger
-        Run NER, sentiment, and intent on row.notes.
-        Returns a ClassificationResult (all fields optional  graceful degradation).
         """
         
         # Initialize logger for this feedback item

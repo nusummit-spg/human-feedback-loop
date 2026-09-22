@@ -26,6 +26,7 @@ from typing import Optional
 
 import structlog
 
+from src.feedback_loop.logging_config import get_pipeline_logger
 from src.feedback_loop.config import FeedbackLoopConfig
 from src.feedback_loop.domain_models import (
     EvidenceSnapshot,
@@ -203,13 +204,6 @@ class AdaptiveRouterService:
 
     def run(self, row: FeedbackRecord, snapshot: EvidenceSnapshot, session_id: str = None, feedback_id: str = None) -> RouterResult:
         """
-        # Bind session context to structlog
-        if session_id and feedback_id:
-            log = logger.bind(session_id=session_id, feedback_id=feedback_id)
-        else:
-            log = logger
-        Run all rule checks against the evidence snapshot and the feedback row.
-        Returns RouterResult with fired rules and computed severity.
         """
         findings: list[RuleFinding] = []
 

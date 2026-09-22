@@ -36,6 +36,7 @@ from typing import Optional
 
 import structlog
 
+from src.feedback_loop.logging_config import get_pipeline_logger
 from src.feedback_loop.domain_models import (
     AdjudicationResult,
     ClassificationResult,
