@@ -1,35 +1,29 @@
 """
 Centralized logging configuration for feedback-loop pipeline.
 
-Provides structured logging with automatic log file creation per session/step.
-
-Usage:
-    from src.feedback_loop.logging_config import get_step_logger
-    
-    logger = get_step_logger("classification", session_id, feedback_id)
-    logger.info("NER extraction complete", entity_count=5)
+Directory structure:
+  logs/
+    session_<session_id>/
+      <feedback_id>/
+        step_1_classification_<timestamp>.log
+        step_2_enrichment_<timestamp>.log
+        step_3_router_<timestamp>.log
+        step_4_adjudication_<timestamp>.log
 """
 
 import logging
 import json
 from pathlib import Path
 from datetime import datetime, timezone
-from typing import Optional
 
 
-# Recommended log directory structure:
-# logs/
-#   session_<session_id>/
-#     step_1_classification_<feedback_id>_<timestamp>.log
-#     step_2_enrichment_<feedback_id>_<timestamp>.log
-#     step_3_router_<feedback_id>_<timestamp>.log
-#     step_4_adjudication_<feedback_id>_<timestamp>.log
-
-def _ensure_log_dir() -> Path:
-    """Create logs directory if it doesn't exist."""
-    log_dir = Path("logs")
-    log_dir.mkdir(exist_ok=True)
-    return log_dir
+def _ensure_log_dir(session_id: str, feedback_id: str) -> Path:
+    """Create nested log directories: logs/session_<id>/<feedback_id>/"""
+    log_base = Path("logs")
+    session_dir = log_base / f"session_{session_id}"
+    feedback_dir = session_dir / feedback_id
+    feedback_dir.mkdir(parents=True, exist_ok=True)
+    return feedback_dir
 
 
 def get_step_logger(
@@ -41,49 +35,31 @@ def get_step_logger(
     """
     Create a logger for a specific pipeline step.
     
-    Args:
-        step_name: Name of the step (e.g., "classification", "enrichment")
-        session_id: User session ID (groups logs by session)
-        feedback_id: Unique feedback ID (for debugging specific feedback)
-        log_level: Logging level (default: INFO)
-    
-    Returns:
-        Configured logger instance
+    Log files created at:
+      logs/session_<session_id>/<feedback_id>/step_<step_name>_<timestamp>.log
     
     Example:
         logger = get_step_logger("classification", session_id, feedback_id)
-        logger.info("Starting NER", text_length=len(feedback_text))
+        logger.info("NER complete", entity_count=5)
     """
-    # Create session-specific subdirectory
-    log_base = _ensure_log_dir()
-    session_dir = log_base / f"session_{session_id}"
-    session_dir.mkdir(exist_ok=True)
+    log_dir = _ensure_log_dir(session_id, feedback_id)
     
-    # ISO timestamp for sortability
     iso_timestamp = datetime.now(timezone.utc).isoformat().replace(":", "-")
+    log_file = log_dir / f"{step_name}_{iso_timestamp}.log"
     
-    # Log filename: step_<step_name>_<feedback_id>_<timestamp>.log
-    log_file = session_dir / f"{step_name}_{feedback_id}_{iso_timestamp}.log"
-    
-    # Create logger
     logger = logging.getLogger(f"feedback_loop.{step_name}.{feedback_id}")
     logger.setLevel(log_level)
     
-    # Prevent duplicate handlers
     if logger.handlers:
         return logger
     
-    # File handler (JSON format for machine-readability)
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setFormatter(JSONFormatter(step_name, session_id, feedback_id))
     logger.addHandler(file_handler)
     
-    # Console handler (human-readable)
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(
-        logging.Formatter(
-            f"[{step_name}] %(levelname)s: %(message)s"
-        )
+        logging.Formatter(f"[{step_name}] %(levelname)s: %(message)s")
     )
     logger.addHandler(console_handler)
     
@@ -91,7 +67,7 @@ def get_step_logger(
 
 
 class JSONFormatter(logging.Formatter):
-    """Format log records as JSON for structured logging."""
+    """Format log records as JSON."""
     
     def __init__(self, step_name: str, session_id: str, feedback_id: str):
         super().__init__()
@@ -110,10 +86,8 @@ class JSONFormatter(logging.Formatter):
             "feedback_id": self.feedback_id,
             "level": record.levelname,
             "message": record.getMessage(),
-            "logger": record.name,
         }
         
-        # Add any extra fields from the log call
         if hasattr(record, "__dict__"):
             for key, value in record.__dict__.items():
                 if not key.startswith("_") and key not in {
