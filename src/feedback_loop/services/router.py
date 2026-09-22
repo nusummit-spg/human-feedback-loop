@@ -25,9 +25,10 @@ import re
 from typing import Optional
 
 import structlog
+from src.feedback_loop.logging_config import get_pipeline_logger
 
-from feedback_loop.config import FeedbackLoopConfig
-from feedback_loop.domain_models import (
+from src.feedback_loop.config import FeedbackLoopConfig
+from src.feedback_loop.domain_models import (
     EvidenceSnapshot,
     FeedbackRecord,
     RouterResult,
@@ -201,7 +202,7 @@ class AdaptiveRouterService:
 
     #  Public API 
 
-    def run(self, row: FeedbackRecord, snapshot: EvidenceSnapshot) -> RouterResult:
+    def run(self, row: FeedbackRecord, snapshot: EvidenceSnapshot, session_id: str = None, feedback_id: str = None) -> RouterResult:
         """
         Run all rule checks against the evidence snapshot and the feedback row.
         Returns RouterResult with fired rules and computed severity.
@@ -221,6 +222,8 @@ class AdaptiveRouterService:
 
         severity = self._severity_from_rules(findings)
 
+        if step_logger:
+            step_logger.info("Router complete", severity=str(result.severity), rules_fired=result.rules_fired)
         logger.info(
             "router_complete",
             feedback_id=row.feedback_id,

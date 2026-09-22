@@ -19,11 +19,12 @@ import re
 from typing import Optional
 
 import structlog
+from src.feedback_loop.logging_config import get_pipeline_logger
 
-from feedback_loop.adapters.db import AbstractDatabaseAdapter
-from feedback_loop.adapters.evidence import AbstractEvidenceAdapter
-from feedback_loop.config import FeedbackLoopConfig
-from feedback_loop.domain_models import (
+from src.feedback_loop.adapters.db import AbstractDatabaseAdapter
+from src.feedback_loop.adapters.evidence import AbstractEvidenceAdapter
+from src.feedback_loop.config import FeedbackLoopConfig
+from src.feedback_loop.domain_models import (
     DissatisfactionSignal,
     EnrichmentResult,
     EntryRoute,
@@ -160,12 +161,17 @@ class EvidenceEnrichmentService:
 
     #  Public API 
 
-    def run(self, row: FeedbackRecord) -> EnrichmentResult:
+    def run(self, row: FeedbackRecord, session_id: str = None, feedback_id: str = None) -> EnrichmentResult:
         """
         Fetch evidence, deduplicate, detect dissatisfaction, derive entry_route.
         Returns EnrichmentResult with is_duplicate=True when the row should be
         discarded (already covered by an open cluster).
         """
+        step_logger = None
+        if session_id and feedback_id:
+            step_logger = get_pipeline_logger("enrichment", session_id, feedback_id)
+            step_logger.info("Enrichment starting", response_id=row.response_id)
+        
         # 1. Fetch frozen evidence snapshot
         snapshot = self._evidence.get_evidence_snapshot(row.response_id)
         evidence_snapshot_ref = row.response_id  # FK into interaction_evidence
@@ -173,6 +179,8 @@ class EvidenceEnrichmentService:
         # 2. Deduplication  check for an existing open cluster
         existing = self._db.find_open_cluster(row.response_id, row.entity_name)
         if existing:
+            if step_logger:
+                step_logger.info(\"Duplicate detected\", response_id=row.response_id)
             logger.info(
                 "duplicate_detected",
                 feedback_id=row.feedback_id,
@@ -210,6 +218,8 @@ class EvidenceEnrichmentService:
             else EntryRoute.AUTOMATIC
         )
 
+        if step_logger:
+            step_logger.info(\"Enrichment complete\", entry_route=str(entry_route))
         logger.info(
             "enrichment_complete",
             feedback_id=row.feedback_id,

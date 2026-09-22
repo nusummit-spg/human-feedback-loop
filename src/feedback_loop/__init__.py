@@ -7,8 +7,8 @@ The host application only needs to import from this module:
     from feedback_loop.adapters import AbstractDatabaseAdapter, AbstractEvidenceAdapter
 """
 
-from feedback_loop.api import start_feedback_loop
-from feedback_loop.config import FeedbackLoopConfig
+from src.feedback_loop.api import start_feedback_loop
+from src.feedback_loop.config import FeedbackLoopConfig
 
 __all__ = [
     "start_feedback_loop",

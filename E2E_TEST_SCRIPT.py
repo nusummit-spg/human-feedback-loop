@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Import feedback-loop components
 from src.feedback_loop import start_feedback_loop
-from src.feedback_loop.adapters.db import SQLiteDatabaseAdapter
+from src.feedback_loop.adapters.sqlite.db_adapter import SQLiteDatabaseAdapter
 from src.feedback_loop.adapters.sqlite_evidence_adapter import SQLiteEvidenceAdapter
 from src.feedback_loop.config import FeedbackLoopConfig
 from src.feedback_loop.domain_models import FeedbackRecord, FeedbackSource, FeedbackType, RatingType

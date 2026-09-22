@@ -13,11 +13,11 @@ from __future__ import annotations
 
 import structlog
 
-from feedback_loop.adapters.db import AbstractDatabaseAdapter
-from feedback_loop.adapters.evidence import AbstractEvidenceAdapter
-from feedback_loop.config import FeedbackLoopConfig
-from feedback_loop.domain_models import FeedbackSource, IngestionStatus
-from feedback_loop.orchestrator import RecordBuilder
+from src.feedback_loop.adapters.db import AbstractDatabaseAdapter
+from src.feedback_loop.adapters.evidence import AbstractEvidenceAdapter
+from src.feedback_loop.config import FeedbackLoopConfig
+from src.feedback_loop.domain_models import FeedbackSource, IngestionStatus
+from src.feedback_loop.orchestrator import RecordBuilder
 
 logger = structlog.get_logger(__name__)
 

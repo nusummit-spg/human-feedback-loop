@@ -35,8 +35,9 @@ from __future__ import annotations
 from typing import Optional
 
 import structlog
+from src.feedback_loop.logging_config import get_pipeline_logger
 
-from feedback_loop.domain_models import (
+from src.feedback_loop.domain_models import (
     AdjudicationResult,
     ClassificationResult,
     EvidenceSnapshot,
@@ -117,6 +118,8 @@ class AdjudicationService:
         else:
             root_cause = RootCause.FEEDBACK_INVALID
 
+        if step_logger:
+            step_logger.info("Adjudication complete", root_cause=str(root_cause))
         logger.info(
             "adjudication_complete",
             feedback_id=row.feedback_id,
