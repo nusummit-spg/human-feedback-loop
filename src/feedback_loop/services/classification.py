@@ -18,6 +18,7 @@ from typing import Optional
 
 import structlog
 
+from src.feedback_loop.logging_config import get_pipeline_logger
 from src.feedback_loop.domain_models import ClassificationResult, FeedbackRecord
 
 logger = structlog.get_logger(__name__)
@@ -120,7 +121,8 @@ class ClassificationService:
         if session_id and feedback_id:
             step_logger = get_pipeline_logger("classification", session_id, feedback_id)
             if step_logger:
-            step_logger.info("Classification starting", text_length=len(row.notes or ""))
+
+                step_logger.info("Classification starting", text_length=len(row.notes or ""))
         else:
             step_logger = None
         notes = row.notes or ""
@@ -164,13 +166,14 @@ class ClassificationService:
             result.entity_type = row.entity_type
 
         if step_logger:
-    if step_logger:
-    logger.info(
-            "classification_complete",
-            feedback_id=row.feedback_id,
-            intent=result.intent,
-            entity=result.entity_extracted,
-            sentiment=result.sentiment_compound,
-        )
+
+
+            step_logger.info(
+                "classification_complete",
+                feedback_id=row.feedback_id,
+                intent=result.intent,
+                entity=result.entity_extracted,
+                sentiment=result.sentiment_compound,
+            )
         return result
 

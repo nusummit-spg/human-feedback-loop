@@ -230,8 +230,8 @@ class AdaptiveRouterService:
         if session_id and feedback_id:
             step_logger = get_pipeline_logger("enrichment", session_id, feedback_id)
             if step_logger:
-                if step_logger:
-            step_logger.info("Router complete")
+
+                step_logger.info("Router complete")
         logger.info(
             "router_complete",
             feedback_id=row.feedback_id,

@@ -20,6 +20,7 @@ from typing import Optional
 
 import structlog
 
+from feedback_loop.logging_config import get_pipeline_logger
 from src.feedback_loop.adapters.db import AbstractDatabaseAdapter
 from src.feedback_loop.adapters.evidence import AbstractEvidenceAdapter
 from src.feedback_loop.config import FeedbackLoopConfig
@@ -175,7 +176,8 @@ class EvidenceEnrichmentService:
         if session_id and feedback_id:
             step_logger = get_pipeline_logger("enrichment", session_id, feedback_id)
             if step_logger:
-            step_logger.info("Enrichment starting")
+
+                step_logger.info("Enrichment starting")
         
         # 1. Fetch frozen evidence snapshot
         snapshot = self._evidence.get_evidence_snapshot(row.response_id)
@@ -185,8 +187,8 @@ class EvidenceEnrichmentService:
         existing = self._db.find_open_cluster(row.response_id, row.entity_name)
         if existing:
             if step_logger:
-                if step_logger:
-            step_logger.info("Duplicate detected", response_id=row.response_id)
+
+                step_logger.info("Duplicate detected", response_id=row.response_id)
             logger.info(
                 "duplicate_detected",
                 feedback_id=row.feedback_id,
@@ -225,7 +227,8 @@ class EvidenceEnrichmentService:
         )
 
         if step_logger:
-            if step_logger:
+
+
             step_logger.info("Enrichment complete", entry_route=str(entry_route))
         logger.info(
             "enrichment_complete",
