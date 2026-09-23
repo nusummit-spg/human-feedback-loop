@@ -18,7 +18,8 @@ from typing import Optional
 
 import structlog
 
-from feedback_loop.domain_models import ClassificationResult, FeedbackRecord
+from src.feedback_loop.logging_config import get_pipeline_logger
+from src.feedback_loop.domain_models import ClassificationResult, FeedbackRecord
 
 logger = structlog.get_logger(__name__)
 
@@ -105,11 +106,18 @@ class ClassificationService:
             return False
         return True
 
-    def run(self, row: FeedbackRecord) -> ClassificationResult:
+    def run(self, row: FeedbackRecord, session_id: str = None, feedback_id: str = None) -> ClassificationResult:
         """
-        Run NER, sentiment, and intent on row.notes.
-        Returns a ClassificationResult (all fields optional  graceful degradation).
         """
+        
+        # Initialize logger for this feedback item
+        if session_id and feedback_id:
+            step_logger = get_pipeline_logger("classification", session_id, feedback_id)
+            if step_logger:
+
+                step_logger.info("Classification starting", text_length=len(row.notes or ""))
+        else:
+            step_logger = None
         notes = row.notes or ""
         result = ClassificationResult()
 
@@ -150,12 +158,15 @@ class ClassificationService:
             result.entity_extracted = row.entity_name
             result.entity_type = row.entity_type
 
-        logger.info(
-            "classification_complete",
-            feedback_id=row.feedback_id,
-            intent=result.intent,
-            entity=result.entity_extracted,
-            sentiment=result.sentiment_compound,
-        )
+        if step_logger:
+
+
+            step_logger.info(
+                "classification_complete",
+                feedback_id=row.feedback_id,
+                intent=result.intent,
+                entity=result.entity_extracted,
+                sentiment=result.sentiment_compound,
+            )
         return result
 

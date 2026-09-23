@@ -36,7 +36,8 @@ from typing import Optional
 
 import structlog
 
-from feedback_loop.domain_models import (
+from src.feedback_loop.logging_config import get_pipeline_logger
+from src.feedback_loop.domain_models import (
     AdjudicationResult,
     ClassificationResult,
     EvidenceSnapshot,
@@ -75,6 +76,8 @@ class AdjudicationService:
         snapshot: EvidenceSnapshot,
         router_result: RouterResult,
         classification: Optional[ClassificationResult] = None,
+        session_id: Optional[str] = None,
+        feedback_id: Optional[str] = None,
     ) -> AdjudicationResult:
         """
         Classify root_cause using deterministic priority rules.
@@ -116,7 +119,12 @@ class AdjudicationService:
         # Priority 8  no signal of any kind
         else:
             root_cause = RootCause.FEEDBACK_INVALID
+        step_logger = None
+        if session_id and feedback_id:
+            step_logger = get_pipeline_logger("adjudication", session_id, feedback_id)
+        if step_logger:
 
+            step_logger.info(f"Adjudication complete. Root cause {str(root_cause)}")
         logger.info(
             "adjudication_complete",
             feedback_id=row.feedback_id,

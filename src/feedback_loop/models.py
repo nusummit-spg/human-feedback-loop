@@ -20,7 +20,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from feedback_loop.database import Base
+from src.feedback_loop.database import Base
 
 
 # ---------------------------------------------------------
@@ -643,13 +643,13 @@ class UnifiedEvaluationRecord(Base):
 
     feedback_ref: Mapped[str | None] = mapped_column(
         String(36),
-        ForeignKey("response_feedback.feedback_id", ondelete="SET NULL"),
+        ForeignKey("response_feedback.feedback_id", ondelete="SET NULL", use_alter=True),
         unique=True,
         nullable=True,
     )
     evidence_snapshot_ref: Mapped[str] = mapped_column(
         String(64),
-        ForeignKey("query_evidence.response_id", ondelete="RESTRICT"),
+        ForeignKey("query_evidence.response_id", ondelete="RESTRICT", use_alter=True),
         nullable=False,
     )
 

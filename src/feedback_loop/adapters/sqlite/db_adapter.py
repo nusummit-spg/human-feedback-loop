@@ -12,7 +12,7 @@ translation layer between the two.
 
 Usage
 -----
-    from feedback_loop.adapters.sqlite.db_adapter import SQLiteDatabaseAdapter
+    from src.feedback_loop.adapters.sqlite.db_adapter import SQLiteDatabaseAdapter
 
     adapter = SQLiteDatabaseAdapter(db_url="sqlite:///path/to/compliance_audit.db")
 """
@@ -27,13 +27,13 @@ from sqlalchemy import create_engine, event, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 # ORM models (SQLAlchemy) -- live in src/feedback_loop/models.py
-from feedback_loop.models import (
+from src.feedback_loop.models import (
     ResponseFeedback as ORM_ResponseFeedback,
     UnifiedEvaluationRecord as ORM_UnifiedEvaluationRecord,
 )
 
-import feedback_loop.domain_models as dm
-from feedback_loop.adapters.db import AbstractDatabaseAdapter
+import src.feedback_loop.domain_models as dm
+from src.feedback_loop.adapters.db import AbstractDatabaseAdapter
 
 
 # ---------------------------------------------------------------------------
@@ -349,6 +349,7 @@ class SQLiteDatabaseAdapter(AbstractDatabaseAdapter):
         """
         with self._session() as session:
             session.add(_pydantic_to_orm_unified(record))
+            session.flush()  # Flush insert to DB before FK update
 
             if record.feedback_ref:
                 session.execute(

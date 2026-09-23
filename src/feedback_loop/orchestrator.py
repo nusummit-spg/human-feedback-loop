@@ -18,20 +18,20 @@ from typing import Optional
 
 import structlog
 
-from feedback_loop.adapters.db import AbstractDatabaseAdapter
-from feedback_loop.adapters.evidence import AbstractEvidenceAdapter
-from feedback_loop.config import FeedbackLoopConfig
-from feedback_loop.domain_models import (
+from src.feedback_loop.adapters.db import AbstractDatabaseAdapter
+from src.feedback_loop.adapters.evidence import AbstractEvidenceAdapter
+from src.feedback_loop.config import FeedbackLoopConfig
+from src.feedback_loop.domain_models import (
     ClassificationResult,
     EnrichmentResult,
     FeedbackRecord,
     LifecycleStatus,
     UnifiedEvaluationRecord,
 )
-from feedback_loop.services.adjudication import AdjudicationService
-from feedback_loop.services.classification import ClassificationService
-from feedback_loop.services.enrichment import EvidenceEnrichmentService
-from feedback_loop.services.router import AdaptiveRouterService
+from src.feedback_loop.services.adjudication import AdjudicationService
+from src.feedback_loop.services.classification import ClassificationService
+from src.feedback_loop.services.enrichment import EvidenceEnrichmentService
+from src.feedback_loop.services.router import AdaptiveRouterService
 
 logger = structlog.get_logger(__name__)
 
@@ -85,10 +85,10 @@ class RecordBuilder:
             # Step 1 is only scheduled when there is text to classify
             step1_future: Optional[concurrent.futures.Future] = None
             if self._classification_svc.should_run(row):
-                step1_future = pool.submit(self._classification_svc.run, row)
+                step1_future = pool.submit(self._classification_svc.run, row, row.session_id, row.feedback_id)
 
             # Step 2 always runs
-            step2_future = pool.submit(self._enrichment_svc.run, row)
+            step2_future = pool.submit(self._enrichment_svc.run, row, row.session_id, row.feedback_id)
 
             # Collect results  step 1 result is optional
             if step1_future is not None:
@@ -116,6 +116,8 @@ class RecordBuilder:
         router_result = self._router_svc.run(
             row=row,
             snapshot=enrichment.evidence_snapshot,
+            session_id=row.session_id,
+            feedback_id=row.feedback_id,
         )
 
         #  Step 4  Adjudication (needs step 3 output) 
@@ -124,6 +126,8 @@ class RecordBuilder:
             snapshot=enrichment.evidence_snapshot,
             router_result=router_result,
             classification=classification,
+            session_id=row.session_id,
+            feedback_id=row.feedback_id,
         )
 
         #  Assemble the unified record 
