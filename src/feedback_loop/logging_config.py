@@ -15,6 +15,7 @@ import logging
 import json
 from pathlib import Path
 from datetime import datetime, timezone
+import uuid
 
 
 def _ensure_log_dir(session_id: str, feedback_id: str) -> Path:
@@ -33,7 +34,9 @@ def get_step_logger(
     log_level: int = logging.INFO,
 ) -> logging.Logger:
     """
-    Create a logger for a specific pipeline step.
+    Create a UNIQUE logger for each step with its own file handler.
+    
+    Each call creates a fresh logger to ensure separate log files.
     
     Log files created at:
       logs/session_<session_id>/<feedback_id>/step_<step_name>_<timestamp>.log
@@ -47,16 +50,21 @@ def get_step_logger(
     iso_timestamp = datetime.now(timezone.utc).isoformat().replace(":", "-")
     log_file = log_dir / f"{step_name}_{iso_timestamp}.log"
     
-    logger = logging.getLogger(f"feedback_loop.{step_name}.{feedback_id}")
+    # Create a UNIQUE logger for each step call to avoid handler reuse
+    unique_logger_name = f"feedback_loop.{step_name}.{feedback_id}.{uuid.uuid4().hex[:8]}"
+    logger = logging.getLogger(unique_logger_name)
+    
+    # Clear any existing handlers to ensure fresh start
+    logger.handlers = []
     logger.setLevel(log_level)
+    logger.propagate = False  # Don't propagate to root logger
     
-    if logger.handlers:
-        return logger
-    
+    # Create file handler (THIS STEP'S LOG ONLY)
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setFormatter(JSONFormatter(step_name, session_id, feedback_id))
     logger.addHandler(file_handler)
     
+    # Create console handler for human-readable output
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(
         logging.Formatter(f"[{step_name}] %(levelname)s: %(message)s")
