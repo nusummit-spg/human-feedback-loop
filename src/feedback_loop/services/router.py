@@ -222,7 +222,7 @@ class AdaptiveRouterService:
 
         step_logger = None
         if session_id and feedback_id:
-            step_logger = get_pipeline_logger("enrichment", session_id, feedback_id)
+            step_logger = get_pipeline_logger("router", session_id, feedback_id)
             if step_logger:
 
                 step_logger.info("Router complete")

@@ -121,7 +121,7 @@ class AdjudicationService:
             root_cause = RootCause.FEEDBACK_INVALID
         step_logger = None
         if session_id and feedback_id:
-            step_logger = get_pipeline_logger("enrichment", session_id, feedback_id)
+            step_logger = get_pipeline_logger("adjudication", session_id, feedback_id)
         if step_logger:
 
             step_logger.info(f"Adjudication complete. Root cause {str(root_cause)}")
