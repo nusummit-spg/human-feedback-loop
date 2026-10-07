@@ -4,26 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e145e3a9-d6c6-4a37-9381-13a9d4d06ac4" name="Changes" comment="logger added">
-      <change afterPath="$PROJECT_DIR$/src/logging_config.py" afterDir="false" />
+    <list default="true" id="e145e3a9-d6c6-4a37-9381-13a9d4d06ac4" name="Changes" comment="updated the setup version">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_13_48_[Changes]/.coverage" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_13_48_[Changes]/compliance_audit.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_13_48_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_13_48__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_13_49_[Changes]/.coverage" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_13_49_[Changes]/compliance_audit.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_13_49_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_13_49__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_14_12_[Changes]/.coverage" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_14_12_[Changes]/compliance_audit.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_14_12_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_17-09-2026_14_12__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/E2E_TEST_SCRIPT.py" beforeDir="false" afterPath="$PROJECT_DIR$/E2E_TEST_SCRIPT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/adapters/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/adapters/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/adapters/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/adapters/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/adapters/evidence.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/adapters/evidence.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/adapters/sqlite/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/adapters/sqlite/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/adapters/sqlite/evidence_adapter.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/adapters/sqlite/evidence_adapter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/adapters/sqlite_evidence_adapter.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/adapters/sqlite_evidence_adapter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/ingest.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/ingest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/orchestrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/orchestrator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/services/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/services/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/services/adjudication.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/services/adjudication.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/services/classification.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/services/classification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/services/enrichment.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/services/enrichment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/feedback_loop/services/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/feedback_loop/services/router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_feedback.db" beforeDir="false" afterPath="$PROJECT_DIR$/test_feedback.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_feedback_multi.db" beforeDir="false" afterPath="$PROJECT_DIR$/test_feedback_multi.db" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -224,7 +221,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-f2b7a9f6281b-6e1f45a539f7-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.29346.142" />
+        <option value="bundled-python-sdk-d4a74c56190c-6d6dccd035ac-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.33813.50" />
       </set>
     </attachedChunks>
   </component>
@@ -244,12 +241,47 @@
       <option name="project" value="LOCAL" />
       <updated>1789708960715</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="logger added">
+      <option name="closed" value="true" />
+      <created>1790139323959</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1790139323959</updated>
+    </task>
+    <task id="LOCAL-00003" summary="removed venv from commit">
+      <option name="closed" value="true" />
+      <created>1790139660400</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1790139660400</updated>
+    </task>
+    <task id="LOCAL-00004" summary="updated the pydantic version">
+      <option name="closed" value="true" />
+      <created>1790326419010</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1790326419010</updated>
+    </task>
+    <task id="LOCAL-00005" summary="updated the setup version">
+      <option name="closed" value="true" />
+      <created>1790326608801</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1790326608801</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="logger added" />
-    <option name="LAST_COMMIT_MESSAGE" value="logger added" />
+    <MESSAGE value="removed venv from commit" />
+    <MESSAGE value="updated the pydantic version" />
+    <MESSAGE value="updated the setup version" />
+    <option name="LAST_COMMIT_MESSAGE" value="updated the setup version" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
