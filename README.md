@@ -1,6 +1,6 @@
-# Human Feedback Loop Module
+# Human Feedback Loop Module (`amc-feedback-loop`)
 
-Installable Python package for the AMC feedback pipeline.
+Installable Python package providing the core `feedback_loop` module for the AMC feedback pipeline. Captures feedback records, evaluates them across 4 deterministic steps, and builds unified evaluation records.
 
 ## Architecture
 
@@ -23,41 +23,60 @@ AMC (host app)
                         └── DB write → unified_evaluation_records
 ```
 
+## Features
+
+- **Step 1 — Classification (`ClassificationService`)**:
+  - Named entity extraction via spaCy
+  - Sentiment analysis via VADER
+  - Rule-based intent detection (correction vs complaint vs neutral)
+- **Step 2 — Evidence Enrichment (`EvidenceEnrichmentService`)**:
+  - Frozen context snapshot retrieval (D0–D3 layers)
+  - Duplicate detection and session clustering
+  - Dissatisfaction signal detection for passive feedback capture
+- **Step 3 — Adaptive Router (`AdaptiveRouterService`)**:
+  - Referential integrity check (C01)
+  - Temporal freshness check (C02)
+  - Numeric accuracy verification (C03)
+  - Structured correction detection (C04)
+  - Compliance and regulatory rule evaluation (C05)
+  - Dynamic severity assignment (CRITICAL, HIGH, MEDIUM, LOW)
+- **Step 4 — Adjudication (`AdjudicationService`)**:
+  - Multi-dimension root cause classification:
+    - `model` (hallucination / numerical discrepancy)
+    - `knowledge` (information gap / explicit correction)
+    - `retrieval` (retriever missed entity or stale data)
+    - `compliance` (regulatory violation)
+    - `presentation` (formatting / style)
+    - `feedback_invalid` (unsupported or contradictory feedback)
+- **Extensible Adapters**:
+  - `AbstractDatabaseAdapter` with `InMemoryDatabaseAdapter` and `SQLiteDatabaseAdapter`
+  - `AbstractEvidenceAdapter` with `InMemoryEvidenceAdapter` and `SQLiteEvidenceAdapter`
+- **Automatic Event Triggering**:
+  - `register_feedback_trigger` for SQLAlchemy `after_flush` hook execution.
+
 ## Installation
 
-### From git (pin to a tag, not a branch)
+### Local editable installation (Development)
 
-```
-git+https://github.com/nusummit-spg/human-feedback-loop@v0.1.0
-```
-
-Add to the host `requirements.txt`:
-
-```
-
-human-feedback-loop @ git+https://github.com/nusummit-spg/human-feedback-loop@v0.1.0
-```
-
-### From a private PyPI (recommended for production)
-
-```
-pip install human-feedback-loop==0.1.0 --index-url https://your-private-pypi/simple
+```bash
+pip install -e packages/amc-feedback-loop
 ```
 
 ## Usage
 
 ```python
-from feedback_loop import start_feedback_loop, FeedbackLoopConfig
-from feedback_loop.adapters import YourDatabaseAdapter, YourEvidenceAdapter
+from feedback_loop import FeedbackLoopConfig, start_feedback_loop
+from feedback_loop.adapters import InMemoryDatabaseAdapter, InMemoryEvidenceAdapter
 
 config = FeedbackLoopConfig()
-db = YourDatabaseAdapter(connection_string="...")
-evidence = YourEvidenceAdapter(amc_base_url="...")
+db = InMemoryDatabaseAdapter()
+evidence = InMemoryEvidenceAdapter()
 
-start_feedback_loop(
-    feedback_id="fb_9c4f1a",
-    session_id="sess_2201",
-    response_id="resp_9c4f1a",
+# Trigger feedback evaluation pipeline
+success = start_feedback_loop(
+    feedback_id="fb_001",
+    session_id="sess_001",
+    response_id="resp_001",
     source="active",
     config=config,
     db=db,
@@ -65,9 +84,8 @@ start_feedback_loop(
 )
 ```
 
-## Running tests
+## Running Tests
 
-```
-pip install -e ".[dev]"
-pytest --cov=feedback_loop
+```bash
+pytest packages/amc-feedback-loop/tests
 ```

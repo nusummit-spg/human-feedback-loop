@@ -18,13 +18,34 @@ from datetime import datetime, timezone
 import uuid
 
 
+from feedback_loop.logging import ensure_log_directory
+
+
 def _ensure_log_dir(session_id: str, feedback_id: str) -> Path:
     """Create nested log directories: logs/session_<id>/<feedback_id>/"""
     log_base = Path("logs")
     session_dir = log_base / f"session_{session_id}"
     feedback_dir = session_dir / feedback_id
-    feedback_dir.mkdir(parents=True, exist_ok=True)
+    ensure_log_directory(feedback_dir)
     return feedback_dir
+
+
+class StepLoggerAdapter(logging.LoggerAdapter):
+    """
+    Adapter that forwards arbitrary keyword arguments into record extra dict,
+    preventing TypeError: Logger._log() got an unexpected keyword argument.
+    """
+    def process(self, msg, kwargs):
+        standard_kwargs = {"exc_info", "stack_info", "stacklevel", "extra"}
+        extra = kwargs.get("extra", {})
+        if not isinstance(extra, dict):
+            extra = {}
+        non_standard = {k: v for k, v in list(kwargs.items()) if k not in standard_kwargs}
+        for k in non_standard:
+            del kwargs[k]
+        extra.update(non_standard)
+        kwargs["extra"] = extra
+        return msg, kwargs
 
 
 def get_step_logger(
@@ -32,7 +53,7 @@ def get_step_logger(
     session_id: str,
     feedback_id: str,
     log_level: int = logging.INFO,
-) -> logging.Logger:
+) -> logging.LoggerAdapter:
     """
     Create a UNIQUE logger for each step with its own file handler.
     
@@ -71,7 +92,7 @@ def get_step_logger(
     )
     logger.addHandler(console_handler)
     
-    return logger
+    return StepLoggerAdapter(logger, {})
 
 
 class JSONFormatter(logging.Formatter):

@@ -5,7 +5,7 @@ Instead of creating separate loggers, we bind context to structlog
 which handles file writing automatically if configured.
 
 Usage:
-    from src.feedback_loop.logging_config_simple import bind_logging_context
+    from feedback_loop.logging_config_simple import bind_logging_context
     
     bind_logging_context("classification", session_id, feedback_id)
     logger.info("NER complete", entity_count=5)

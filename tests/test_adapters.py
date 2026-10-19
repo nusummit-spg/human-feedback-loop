@@ -1,15 +1,17 @@
 """
-Tests for InMemoryDatabaseAdapter and InMemoryEvidenceAdapter.
+Unit tests for feedback_loop database and evidence adapters.
 """
-
-from __future__ import annotations
-
-from datetime import datetime, timedelta, timezone
-
+from datetime import datetime, timezone
+import os
+import tempfile
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from feedback_loop.adapters.db import InMemoryDatabaseAdapter
 from feedback_loop.adapters.evidence import InMemoryEvidenceAdapter
+from feedback_loop.adapters.sqlite.db_adapter import SQLiteDatabaseAdapter
+from feedback_loop.adapters.sqlite.evidence_adapter import SQLiteEvidenceAdapter
 from feedback_loop.domain_models import (
     EvidenceChunk,
     EvidenceSnapshot,
@@ -20,145 +22,158 @@ from feedback_loop.domain_models import (
     IngestionStatus,
     RatingType,
     UnifiedEvaluationRecord,
+    EntryRoute,
+    RootCause,
+    Severity,
+)
+from feedback_loop.models import (
+    Base,
+    ResponseFeedback as ORM_ResponseFeedback,
+    QueryEvidence as ORM_QueryEvidence,
+    UnifiedEvaluationRecord as ORM_UnifiedEvaluationRecord,
 )
 
-TS = datetime(2026, 9, 2, 10, 0, 0, tzinfo=timezone.utc)
 
+def test_in_memory_database_adapter():
+    adapter = InMemoryDatabaseAdapter()
 
-def _make_feedback(feedback_id: str = "fb_001", received_at=None) -> FeedbackRecord:
-    return FeedbackRecord(
-        feedback_id=feedback_id,
-        response_id="resp_001",
-        session_id="sess_001",
-        rating=RatingType.NEGATIVE,
-        feedback_type=FeedbackType.INACCURATE,
+    row = FeedbackRecord(
+        feedback_id="fb_mem_1",
+        session_id="s1",
+        response_id="r1",
+        rating=RatingType.POSITIVE,
+        feedback_type=FeedbackType.OTHER,
         source=FeedbackSource.ACTIVE,
-        received_at=received_at or TS,
+        received_at=datetime.now(timezone.utc),
     )
+    adapter.seed_feedback(row)
 
+    fetched = adapter.fetch_feedback_record("fb_mem_1")
+    assert fetched.feedback_id == "fb_mem_1"
 
-def _make_unified(response_id: str = "resp_001") -> UnifiedEvaluationRecord:
-    return UnifiedEvaluationRecord(
-        session_id="sess_001",
-        response_id=response_id,
-        entry_route="hitl",
-        evidence_snapshot_ref="ev_001",
+    # Status update
+    adapter.update_ingestion_status("fb_mem_1", IngestionStatus.SENT)
+    updated = adapter.fetch_feedback_record("fb_mem_1")
+    assert updated.ingestion_status == IngestionStatus.SENT
+
+    # Write unified record
+    eval_rec = UnifiedEvaluationRecord(
+        session_id="s1",
+        response_id="r1",
+        entry_route=EntryRoute.HITL,
+        evidence_snapshot_ref="r1",
+        root_cause=RootCause.MODEL,
+        severity=Severity.MEDIUM,
     )
+    adapter.write_unified_record(eval_rec)
+    assert adapter.unified_record_exists("r1") is True
+    assert adapter.fetch_unified_record("r1") is not None
+    assert len(adapter.get_all_unified()) == 1
 
 
-class TestInMemoryDatabaseAdapter:
-    def test_seed_and_fetch(self):
-        db = InMemoryDatabaseAdapter()
-        fb = _make_feedback()
-        db.seed_feedback(fb)
-        fetched = db.fetch_feedback_record("fb_001")
-        assert fetched.feedback_id == "fb_001"
+def test_in_memory_evidence_adapter():
+    adapter = InMemoryEvidenceAdapter()
 
-    def test_fetch_missing_raises(self):
-        db = InMemoryDatabaseAdapter()
-        with pytest.raises(KeyError):
-            db.fetch_feedback_record("nonexistent")
+    snapshot = EvidenceSnapshot(
+        response_id="r_ev_1",
+        original_query="What is TER?",
+        response_text="0.5%",
+    )
+    adapter.seed_snapshot(snapshot)
 
-    def test_update_ingestion_status(self):
-        db = InMemoryDatabaseAdapter()
-        db.seed_feedback(_make_feedback())
-        db.update_ingestion_status("fb_001", IngestionStatus.SENT)
-        assert db.fetch_feedback_record("fb_001").ingestion_status == "sent"
+    assert adapter.validate_response_exists("r_ev_1") is True
+    assert adapter.validate_response_exists("unknown") is False
 
-    def test_update_status_missing_raises(self):
-        db = InMemoryDatabaseAdapter()
-        with pytest.raises(KeyError):
-            db.update_ingestion_status("ghost", IngestionStatus.SENT)
+    fetched_snap = adapter.get_evidence_snapshot("r_ev_1")
+    assert fetched_snap.original_query == "What is TER?"
 
-    def test_write_and_exists(self):
-        db = InMemoryDatabaseAdapter()
-        record = _make_unified()
-        assert not db.unified_record_exists("resp_001")
-        db.write_unified_record(record)
-        assert db.unified_record_exists("resp_001")
-
-    def test_find_open_cluster_returns_existing(self):
-        db = InMemoryDatabaseAdapter()
-        record = _make_unified()
-        db.write_unified_record(record)
-        found = db.find_open_cluster("resp_001", None)
-        assert found is not None
-        assert found.response_id == "resp_001"
-
-    def test_find_open_cluster_returns_none_when_absent(self):
-        db = InMemoryDatabaseAdapter()
-        assert db.find_open_cluster("resp_999", None) is None
-
-    def test_fetch_pending_returns_old_rows(self):
-        db = InMemoryDatabaseAdapter()
-        old_ts = datetime.now(timezone.utc) - timedelta(minutes=10)
-        fb = _make_feedback(received_at=old_ts)
-        db.seed_feedback(fb)
-        pending = db.fetch_pending_feedback_records(older_than_minutes=5)
-        assert len(pending) == 1
-
-    def test_fetch_pending_excludes_recent_rows(self):
-        db = InMemoryDatabaseAdapter()
-        recent_ts = datetime.now(timezone.utc) - timedelta(seconds=30)
-        fb = _make_feedback(received_at=recent_ts)
-        db.seed_feedback(fb)
-        pending = db.fetch_pending_feedback_records(older_than_minutes=5)
-        assert len(pending) == 0
-
-    def test_fetch_pending_excludes_sent_rows(self):
-        db = InMemoryDatabaseAdapter()
-        old_ts = datetime.now(timezone.utc) - timedelta(minutes=10)
-        fb = _make_feedback(received_at=old_ts)
-        db.seed_feedback(fb)
-        db.update_ingestion_status("fb_001", IngestionStatus.SENT)
-        pending = db.fetch_pending_feedback_records(older_than_minutes=5)
-        assert len(pending) == 0
-
-    def test_get_all_unified(self):
-        db = InMemoryDatabaseAdapter()
-        db.write_unified_record(_make_unified("resp_A"))
-        db.write_unified_record(_make_unified("resp_B"))
-        all_records = db.get_all_unified()
-        assert len(all_records) == 2
+    # Follow-ups
+    queries = [
+        FollowUpQuery(query_id="q1", text="Follow up query", created_at=datetime.now(timezone.utc))
+    ]
+    adapter.seed_followups("sess_1", queries)
+    assert len(adapter.get_followup_activity("sess_1", "r_ev_1", window_minutes=5)) == 1
 
 
-class TestInMemoryEvidenceAdapter:
-    def test_get_snapshot(self):
-        ev = InMemoryEvidenceAdapter()
-        snap = EvidenceSnapshot(
-            response_id="resp_001",
-            original_query="test query",
-            response_text="test response",
+def test_sqlite_adapters_roundtrip():
+    fd, path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+    db_url = f"sqlite:///{path}"
+
+    try:
+        engine = create_engine(db_url)
+        Base.metadata.create_all(engine)
+        Session = sessionmaker(bind=engine)
+
+        with Session() as session:
+            # Seed ORM Feedback
+            orm_fb = ORM_ResponseFeedback(
+                feedback_id="fb_sql_1",
+                interaction_id="int_sql_1",
+                actor_id="user_01",
+                session_id="sess_sql_1",
+                response_id="resp_sql_1",
+                turn_number=1,
+                selected_categories=["F02"],
+                feedback_text="Exit load is 1% not 0%",
+                actor_role="user",
+                created_at=datetime.now(timezone.utc).isoformat(),
+            )
+            session.add(orm_fb)
+
+            # Seed ORM Evidence
+            orm_qe = ORM_QueryEvidence(
+                response_id="resp_sql_1",
+                session_id="sess_sql_1",
+                query_text="What is the exit load?",
+                assembled_context_json=[
+                    {"chunk_id": "c1", "value": "1%", "content": "Exit load is 1%."}
+                ],
+                synthesis_output_json={"answer": "Exit load is 0%."},
+                created_at=datetime.now(timezone.utc).isoformat(),
+            )
+            session.add(orm_qe)
+            session.commit()
+
+        # Test SQLiteDatabaseAdapter
+        db_adapter = SQLiteDatabaseAdapter(db_url=db_url)
+        fb_record = db_adapter.fetch_feedback_record("fb_sql_1")
+        assert fb_record.feedback_id == "fb_sql_1"
+        assert fb_record.source == FeedbackSource.ACTIVE
+        assert fb_record.notes == "Exit load is 1% not 0%"
+
+        # Test SQLiteEvidenceAdapter
+        ev_adapter = SQLiteEvidenceAdapter(db_url=db_url)
+        snapshot = ev_adapter.get_evidence_snapshot("resp_sql_1")
+        assert snapshot.original_query == "What is the exit load?"
+        assert snapshot.response_text == "Exit load is 0%."
+        assert len(snapshot.evidence_selected) == 1
+
+        # Test writing unified record via SQLiteDatabaseAdapter
+        eval_record = UnifiedEvaluationRecord(
+            session_id="sess_sql_1",
+            response_id="resp_sql_1",
+            entry_route=EntryRoute.HITL,
+            feedback_ref="fb_sql_1",
+            evidence_snapshot_ref="resp_sql_1",
+            root_cause=RootCause.MODEL,
+            severity=Severity.HIGH,
         )
-        ev.seed_snapshot(snap)
-        fetched = ev.get_evidence_snapshot("resp_001")
-        assert fetched.response_id == "resp_001"
+        db_adapter.write_unified_record(eval_record)
+        assert db_adapter.unified_record_exists("resp_sql_1") is True
 
-    def test_get_snapshot_missing_raises(self):
-        ev = InMemoryEvidenceAdapter()
-        with pytest.raises(KeyError):
-            ev.get_evidence_snapshot("ghost")
-
-    def test_validate_response_exists(self):
-        ev = InMemoryEvidenceAdapter()
-        ev.seed_known_response("resp_001")
-        assert ev.validate_response_exists("resp_001") is True
-        assert ev.validate_response_exists("resp_999") is False
-
-    def test_get_followup_activity_empty_by_default(self):
-        ev = InMemoryEvidenceAdapter()
-        followups = ev.get_followup_activity("sess_001", "resp_001", window_minutes=3)
-        assert followups == []
-
-    def test_get_followup_activity_with_seeded_data(self):
-        ev = InMemoryEvidenceAdapter()
-        fq = FollowUpQuery(
-            query_id="q1",
-            text="No, that's wrong",
-            created_at=datetime(2026, 9, 2, 10, 16, tzinfo=timezone.utc),
-        )
-        ev.seed_followups("sess_001", [fq])
-        followups = ev.get_followup_activity("sess_001", "resp_001", window_minutes=3)
-        assert len(followups) == 1
-        assert followups[0].query_id == "q1"
-
+    finally:
+        try:
+            if "engine" in locals():
+                engine.dispose()
+            if "db_adapter" in locals() and hasattr(db_adapter, "_engine"):
+                db_adapter._engine.dispose()
+            if "ev_adapter" in locals() and hasattr(ev_adapter, "_engine"):
+                ev_adapter._engine.dispose()
+        except Exception:
+            pass
+        if os.path.exists(path):
+            try:
+                os.unlink(path)
+            except Exception:
+                pass

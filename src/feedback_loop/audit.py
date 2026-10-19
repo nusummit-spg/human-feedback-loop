@@ -4,16 +4,28 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.core.models import (
-    Region,
-    AuditType,
-    AuditStatus,
-    ComplianceTrend,
-    ViolationCategory,
-    ViolationStatus,
-    Severity,
-    ConfidenceLevel,
-)
+try:
+    from feedback_loop.models import (
+        Region,
+        AuditType,
+        AuditStatus,
+        ComplianceTrend,
+        ViolationCategory,
+        ViolationStatus,
+        Severity,
+        ConfidenceLevel,
+    )
+except ImportError:
+    from app.core.models import (
+        Region,
+        AuditType,
+        AuditStatus,
+        ComplianceTrend,
+        ViolationCategory,
+        ViolationStatus,
+        Severity,
+        ConfidenceLevel,
+    )
 
 
 class AuditMetadataCreate(BaseModel):

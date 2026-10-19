@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from src.feedback_loop.domain_models import (
+from feedback_loop.domain_models import (
     FeedbackRecord,
     IngestionStatus,
     LifecycleStatus,
@@ -161,6 +161,13 @@ class InMemoryDatabaseAdapter(AbstractDatabaseAdapter):
         """Return all written UnifiedEvaluationRecords (for test assertions)."""
         with self._lock:
             return list(self._unified.values())
+
+    def fetch_unified_record(
+        self, response_id: str
+    ) -> Optional[UnifiedEvaluationRecord]:
+        """Return the written UnifiedEvaluationRecord for response_id, or None."""
+        with self._lock:
+            return self._unified.get(response_id)
 
     # -- AbstractDatabaseAdapter implementation ------------------------------
 

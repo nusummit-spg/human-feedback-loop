@@ -13,7 +13,7 @@ response text.
 
 Usage
 -----
-    from src.feedback_loop.adapters.sqlite.evidence_adapter import SQLiteEvidenceAdapter
+    from feedback_loop.adapters.sqlite.evidence_adapter import SQLiteEvidenceAdapter
 
     adapter = SQLiteEvidenceAdapter(db_url="sqlite:///path/to/compliance_audit.db")
 """
@@ -28,9 +28,9 @@ from uuid import uuid4
 from sqlalchemy import create_engine, event, select
 from sqlalchemy.orm import sessionmaker
 
-from src.feedback_loop.models import QueryEvidence as ORM_QueryEvidence
-from src.feedback_loop.adapters.evidence import AbstractEvidenceAdapter
-import src.feedback_loop.domain_models as dm
+from feedback_loop.models import QueryEvidence as ORM_QueryEvidence
+from feedback_loop.adapters.evidence import AbstractEvidenceAdapter
+import feedback_loop.domain_models as dm
 
 
 def _parse_dt(value: str | None) -> datetime:

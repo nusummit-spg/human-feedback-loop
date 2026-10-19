@@ -20,7 +20,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.feedback_loop.database import Base
+from feedback_loop.database import Base
 
 
 # ---------------------------------------------------------

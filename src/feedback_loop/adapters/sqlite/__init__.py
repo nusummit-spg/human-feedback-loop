@@ -6,14 +6,14 @@ against the compliance_audit.db SQLite database.
 
 Usage
 -----
-    from src.feedback_loop.adapters.sqlite import SQLiteDatabaseAdapter, SQLiteEvidenceAdapter
+    from feedback_loop.adapters.sqlite import SQLiteDatabaseAdapter, SQLiteEvidenceAdapter
 
     DB_URL = "sqlite:///path/to/compliance_audit.db"
     db  = SQLiteDatabaseAdapter(db_url=DB_URL)
     ev  = SQLiteEvidenceAdapter(db_url=DB_URL)
 """
 
-from src.feedback_loop.adapters.sqlite.db_adapter import SQLiteDatabaseAdapter
-from src.feedback_loop.adapters.sqlite.evidence_adapter import SQLiteEvidenceAdapter
+from feedback_loop.adapters.sqlite.db_adapter import SQLiteDatabaseAdapter
+from feedback_loop.adapters.sqlite.evidence_adapter import SQLiteEvidenceAdapter
 
 __all__ = ["SQLiteDatabaseAdapter", "SQLiteEvidenceAdapter"]

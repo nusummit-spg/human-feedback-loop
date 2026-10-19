@@ -12,7 +12,7 @@ translation layer between the two.
 
 Usage
 -----
-    from src.feedback_loop.adapters.sqlite.db_adapter import SQLiteDatabaseAdapter
+    from feedback_loop.adapters.sqlite.db_adapter import SQLiteDatabaseAdapter
 
     adapter = SQLiteDatabaseAdapter(db_url="sqlite:///path/to/compliance_audit.db")
 """
@@ -27,13 +27,13 @@ from sqlalchemy import create_engine, event, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 # ORM models (SQLAlchemy) -- live in src/feedback_loop/models.py
-from src.feedback_loop.models import (
+from feedback_loop.models import (
     ResponseFeedback as ORM_ResponseFeedback,
     UnifiedEvaluationRecord as ORM_UnifiedEvaluationRecord,
 )
 
-import src.feedback_loop.domain_models as dm
-from src.feedback_loop.adapters.db import AbstractDatabaseAdapter
+import feedback_loop.domain_models as dm
+from feedback_loop.adapters.db import AbstractDatabaseAdapter
 
 
 # ---------------------------------------------------------------------------
@@ -229,14 +229,14 @@ def _pydantic_to_orm_unified(
         severity=record.severity,
         lifecycle_status=record.lifecycle_status,
         dissatisfaction_evidence_json=record.dissatisfaction_evidence,
-        repair=False,
-        repair_target=None,
-        deterministic_results=None,
-        gnn_plausibility_score=None,
-        semantic_results=None,
-        llm_evaluation=None,
-        adjudication_verdict=None,
-        adjudication_confidence=None,
+        repair=getattr(record, "repair", False),
+        repair_target=getattr(record, "repair_target", None),
+        deterministic_results=record.deterministic_results,
+        gnn_plausibility_score=record.gnn_plausibility_score,
+        semantic_results=record.semantic_results,
+        llm_evaluation=record.llm_evaluation,
+        adjudication_verdict=record.adjudication_verdict,
+        adjudication_confidence=record.adjudication_confidence,
         created_by="feedback_loop_module",
     )
 
