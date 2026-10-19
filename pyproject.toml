@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "amc-feedback-loop"
@@ -36,5 +36,10 @@ dev = [
     "freezegun>=1.5.0",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/feedback_loop"]
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--tb=short -q -p no:langsmith"
