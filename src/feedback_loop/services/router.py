@@ -10,6 +10,8 @@ Rules implemented:
   C03   numeric accuracy    (response value vs. evidence value)
   C04   structured correction present (user-supplied explicit correction)
   C05   compliance / jurisdiction keyword detection
+  C06   cardinality check (response claims single value but evidence has multiple)
+  C07   cross-source consistency (same fact from different sources must agree)
 
 Severity mapping (design Â§ 3):
   - Compliance / jurisdiction violation  â†’ critical
