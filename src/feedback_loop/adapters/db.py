@@ -162,6 +162,13 @@ class InMemoryDatabaseAdapter(AbstractDatabaseAdapter):
         with self._lock:
             return list(self._unified.values())
 
+    def fetch_unified_record(
+        self, response_id: str
+    ) -> Optional[UnifiedEvaluationRecord]:
+        """Return the written UnifiedEvaluationRecord for response_id, or None."""
+        with self._lock:
+            return self._unified.get(response_id)
+        
     # -- AbstractDatabaseAdapter implementation ------------------------------
 
     def fetch_feedback_record(self, feedback_id: str) -> FeedbackRecord:

@@ -78,32 +78,38 @@ def register_feedback_trigger(
     @event.listens_for(session_factory, "after_flush")
     def _on_flush(session: Session, flush_context) -> None:
         """
-        Fires after every flush. Iterates over newly inserted objects and
-        invokes the pipeline for each ResponseFeedback row.
+        Fires after every flush. Collects newly inserted ResponseFeedback rows.
         """
-        new_feedback_rows = [
-            obj for obj in session.new
+        pending = [
+            (obj.feedback_id, obj.response_id, obj.session_id, (obj.actor_role or "").lower())
+            for obj in session.new
             if isinstance(obj, ResponseFeedback)
         ]
+        if pending:
+            session.info.setdefault("_pending_feedback_triggers", []).extend(pending)
 
-        for row in new_feedback_rows:
-            # Derive source: system-generated rows are passive, human rows are active
-            actor_role = (row.actor_role or "").lower()
+    @event.listens_for(session_factory, "after_commit")
+    def _on_commit(session: Session) -> None:
+        """
+        Fires after commit. Invokes the pipeline for each committed ResponseFeedback row.
+        """
+        pending = session.info.pop("_pending_feedback_triggers", [])
+        for feedback_id, response_id, session_id, actor_role in pending:
             source = "passive" if actor_role == "system" else "active"
 
             log = logger.bind(
-                feedback_id=row.feedback_id,
-                response_id=row.response_id,
-                session_id=row.session_id,
+                feedback_id=feedback_id,
+                response_id=response_id,
+                session_id=session_id,
                 source=source,
             )
             log.info("feedback_trigger_fired")
 
             try:
                 result = start_feedback_loop(
-                    feedback_id=row.feedback_id,
-                    session_id=row.session_id,
-                    response_id=row.response_id,
+                    feedback_id=feedback_id,
+                    session_id=session_id,
+                    response_id=response_id,
                     source=source,
                     config=config,
                     db=db_adapter,
@@ -112,20 +118,21 @@ def register_feedback_trigger(
                 log.info("feedback_trigger_complete", produced_record=result)
 
             except KeyError as exc:
-                # query_evidence row doesn't exist yet — normal for rows
-                # inserted before the corresponding evidence is written.
-                # The retry sweep will pick this up.
                 log.warning(
                     "feedback_trigger_missing_evidence",
                     error=str(exc),
                 )
             except Exception as exc:
-                # Pipeline failure must NOT roll back the feedback insert.
                 log.error(
                     "feedback_trigger_pipeline_error",
                     error=str(exc),
                     exc_info=True,
                 )
+
+    @event.listens_for(session_factory, "after_rollback")
+    def _on_rollback(session: Session) -> None:
+        """Clear pending triggers if transaction was rolled back."""
+        session.info.pop("_pending_feedback_triggers", None)
 
     logger.info(
         "feedback_trigger_registered",

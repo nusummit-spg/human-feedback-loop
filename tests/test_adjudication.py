@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from feedback_loop.domain_models import (
+from src.feedback_loop.domain_models import (
     AdjudicationResult,
     ClassificationResult,
     EvidenceChunk,
@@ -22,7 +22,7 @@ from feedback_loop.domain_models import (
     RouterResult,
     Severity,
 )
-from feedback_loop.services.adjudication import AdjudicationService
+from src.feedback_loop.services.adjudication import AdjudicationService
 from tests.conftest import TS_BASE as TS
 
 
