@@ -6,8 +6,8 @@ against their own persistence and AMC data layers, then pass the instances
 into start_feedback_loop().
 """
 
-from src.feedback_loop.adapters.db import AbstractDatabaseAdapter, InMemoryDatabaseAdapter
-from src.feedback_loop.adapters.evidence import AbstractEvidenceAdapter, InMemoryEvidenceAdapter
+from feedback_loop.adapters.db import AbstractDatabaseAdapter, InMemoryDatabaseAdapter
+from feedback_loop.adapters.evidence import AbstractEvidenceAdapter, InMemoryEvidenceAdapter
 
 __all__ = [
     "AbstractDatabaseAdapter",

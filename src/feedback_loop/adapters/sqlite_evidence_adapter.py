@@ -20,8 +20,8 @@ import structlog
 from sqlalchemy import and_, create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from src.feedback_loop.adapters.evidence import AbstractEvidenceAdapter
-from src.feedback_loop.domain_models import (
+from feedback_loop.adapters.evidence import AbstractEvidenceAdapter
+from feedback_loop.domain_models import (
     EvidenceChunk,
     EvidenceSnapshot,
     FollowUpQuery,
@@ -40,7 +40,7 @@ class SQLiteEvidenceAdapter(AbstractEvidenceAdapter):
       - ResponseMetadataCache for fast existence checks (optional)
 
     Usage:
-        from src.feedback_loop.adapters.sqlite_evidence_adapter import SQLiteEvidenceAdapter
+        from feedback_loop.adapters.sqlite_evidence_adapter import SQLiteEvidenceAdapter
 
         evidence = SQLiteEvidenceAdapter(db_url="sqlite:///amc.db")
         snapshot = evidence.get_evidence_snapshot(response_id)
@@ -74,7 +74,7 @@ class SQLiteEvidenceAdapter(AbstractEvidenceAdapter):
         Raises:
             KeyError: If response_id not found in query_evidence
         """
-        from src.feedback_loop.models import QueryEvidence
+        from feedback_loop.models import QueryEvidence
 
         with self._session_factory() as session:
             row = session.query(QueryEvidence).filter(
@@ -127,7 +127,7 @@ class SQLiteEvidenceAdapter(AbstractEvidenceAdapter):
             list[FollowUpQuery]: Chronologically ordered follow-up queries,
                                empty list if none found
         """
-        from src.feedback_loop.models import QueryEvidence
+        from feedback_loop.models import QueryEvidence
 
         # Step 1: Find the response timestamp
         with self._session_factory() as session:
@@ -154,7 +154,7 @@ class SQLiteEvidenceAdapter(AbstractEvidenceAdapter):
         with self._session_factory() as session:
             # Try to fetch from query_log table (adjust if your table is named differently)
             try:
-                from src.feedback_loop.models import QueryLog
+                from feedback_loop.models import QueryLog
             except ImportError:
                 self._log.warning("QueryLog table not found, returning empty followups")
                 return []
@@ -207,7 +207,7 @@ class SQLiteEvidenceAdapter(AbstractEvidenceAdapter):
         Returns:
             True if response exists, False otherwise
         """
-        from src.feedback_loop.models import QueryEvidence
+        from feedback_loop.models import QueryEvidence
 
         with self._session_factory() as session:
             count = session.query(QueryEvidence).filter(

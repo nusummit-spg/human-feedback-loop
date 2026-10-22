@@ -18,9 +18,9 @@ from typing import Optional
 
 import structlog
 
-from src.feedback_loop.logging_config import get_pipeline_logger
-from src.feedback_loop.logging import get_feedback_logger, log_step_info, log_step_warning
-from src.feedback_loop.domain_models import ClassificationResult, FeedbackRecord
+from feedback_loop.logging_config import get_pipeline_logger
+from feedback_loop.logging import get_feedback_logger, log_step_info, log_step_warning
+from feedback_loop.domain_models import ClassificationResult, FeedbackRecord
 
 logger = structlog.get_logger(__name__)
 step_logger_cls = get_feedback_logger("classification")
