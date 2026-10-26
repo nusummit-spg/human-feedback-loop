@@ -4,7 +4,7 @@ Centralized logging configuration for feedback-loop pipeline.
 Provides structured logging with automatic log file creation per session/step.
 
 Usage:
-    from src.feedback_loop.logging_config import get_step_logger
+    from feedback_loop.logging_config import get_step_logger
 
     logger = get_step_logger("classification", session_id, feedback_id)
     logger.info("NER extraction complete", entity_count=5)

@@ -18,10 +18,10 @@ from typing import Optional
 
 import structlog
 
-from src.feedback_loop.adapters.db import AbstractDatabaseAdapter
-from src.feedback_loop.adapters.evidence import AbstractEvidenceAdapter
-from src.feedback_loop.config import FeedbackLoopConfig
-from src.feedback_loop.domain_models import (
+from feedback_loop.adapters.db import AbstractDatabaseAdapter
+from feedback_loop.adapters.evidence import AbstractEvidenceAdapter
+from feedback_loop.config import FeedbackLoopConfig
+from feedback_loop.domain_models import (
     ClassificationResult,
     EnrichmentResult,
     FeedbackRecord,
@@ -29,12 +29,12 @@ from src.feedback_loop.domain_models import (
     UnifiedEvaluationRecord,
     FeedbackSource
 )
-from src.feedback_loop.services.adjudication import AdjudicationService
-from src.feedback_loop.services.classification import ClassificationService
-from src.feedback_loop.services.diagnosis import DiagnosisService
-from src.feedback_loop.services.enrichment import EvidenceEnrichmentService
-from src.feedback_loop.services.repair_analyzer import RepairAnalyzerService
-from src.feedback_loop.services.router import AdaptiveRouterService
+from feedback_loop.services.adjudication import AdjudicationService
+from feedback_loop.services.classification import ClassificationService
+from feedback_loop.services.diagnosis import DiagnosisService
+from feedback_loop.services.enrichment import EvidenceEnrichmentService
+from feedback_loop.services.repair_analyzer import RepairAnalyzerService
+from feedback_loop.services.router import AdaptiveRouterService
 from feedback_loop.logging import (
     get_feedback_logger,
     log_step_info,

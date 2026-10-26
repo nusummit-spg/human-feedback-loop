@@ -11,7 +11,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from src.feedback_loop.domain_models import EvidenceChunk, EvidenceSnapshot, FollowUpQuery
+from feedback_loop.domain_models import EvidenceChunk, EvidenceSnapshot, FollowUpQuery
 
 
 class AbstractEvidenceAdapter(ABC):

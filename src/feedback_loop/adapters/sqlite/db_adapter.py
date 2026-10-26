@@ -26,14 +26,14 @@ from typing import Optional
 from sqlalchemy import create_engine, event, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
-# ORM models (SQLAlchemy) -- live in src/feedback_loop/models.py
-from src.feedback_loop.models import (
+# ORM models (SQLAlchemy) -- live in feedback_loop/models.py
+from feedback_loop.models import (
     ResponseFeedback as ORM_ResponseFeedback,
     UnifiedEvaluationRecord as ORM_UnifiedEvaluationRecord,
 )
 
-import src.feedback_loop.domain_models as dm
-from src.feedback_loop.adapters.db import AbstractDatabaseAdapter
+import feedback_loop.domain_models as dm
+from feedback_loop.adapters.db import AbstractDatabaseAdapter
 
 
 # ---------------------------------------------------------------------------

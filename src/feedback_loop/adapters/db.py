@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from src.feedback_loop.domain_models import (
+from feedback_loop.domain_models import (
     FeedbackRecord,
     IngestionStatus,
     LifecycleStatus,

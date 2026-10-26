@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 import uuid
 
 
-from src.feedback_loop.logging import ensure_log_directory
+from feedback_loop.logging import ensure_log_directory
 
 
 def _ensure_log_dir(session_id: str, feedback_id: str) -> Path:

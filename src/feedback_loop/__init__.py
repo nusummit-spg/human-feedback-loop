@@ -7,16 +7,16 @@ The host application only needs to import from this module:
     from feedback_loop.adapters import AbstractDatabaseAdapter, AbstractEvidenceAdapter
 """
 
-from src.feedback_loop.api import start_feedback_loop
-from src.feedback_loop.config import DEFAULT_ATTRIBUTE_KEYWORDS, FeedbackConfig, FeedbackLoopConfig
-from src.feedback_loop.loop import (
+from feedback_loop.api import start_feedback_loop
+from feedback_loop.config import DEFAULT_ATTRIBUTE_KEYWORDS, FeedbackConfig, FeedbackLoopConfig
+from feedback_loop.loop import (
     FeedbackLoop,
     FollowUpDetectionRequest,
     FollowUpDetectionResult,
     SQLiteAdapter,
     StructuredClaim,
 )
-from src.feedback_loop.logging import (
+from feedback_loop.logging import (
     DetailedConsoleFormatter,
     DetailedFileFormatter,
     JSONFormatter,
